@@ -1,25 +1,64 @@
-import React from 'react'
 
+// import axios from 'axios';
+// import React from 'react';
+// import { BiEditAlt, BiTrash } from 'react-icons/bi';
+// import { baseURL } from '../Base/Constent';
 
-// imported icons
-import { BiEditAlt, BiTrash } from 'react-icons/bi'
+// function Lists({ id, tasks, setUpdateUI, updateMode }) {
 
-function Lists({ id, tasks, setUpdateUI, updateMode }) {
+//     const removeTask = () => {
+//         axios.delete(`${baseURL}/delete/${id}`)
+//             .then((res) => {
+//                 console.log(res);
+//                 setUpdateUI((prevState) => !prevState)
+//             })
+//     }
+
+//     return (
+//         <div className="space-x-4">
+//             <button onClick={() => updateMode(id, tasks)} className="bg-white focus:outline-none">
+//                 <BiEditAlt className="text-xl hover:text-green-500 transition-colors duration-300" />
+//             </button>
+
+//             <button onClick={removeTask} className="bg-white focus:outline-none">
+//                 <BiTrash className="text-xl hover:text-red-500 transition-colors duration-300" />
+//             </button>
+//         </div>
+//     );
+// }
+
+// export default Lists;
+import React from 'react';
+import { BiEditAlt, BiTrash } from 'react-icons/bi';
+import axios from 'axios';
+import { baseURL } from '../Base/Constent';
+import { useDispatch } from 'react-redux';
+import { toggleUI } from '../Redux-Toolkit/TaskSlice';
+import { getDataInfo } from '../Redux-Toolkit/TaskSlice';
+
+function Lists({ id, tasks, updateMode, names }) {
+    const dispatch = useDispatch();
+
+    const removeTask = () => {
+        axios.delete(`${baseURL}/delete/${id}`)
+            .then((res) => {
+                dispatch(toggleUI());
+                dispatch(getDataInfo()); // Fetch updated tasks
+            });
+    }
+    
+
     return (
-        <div className="m-3 p-2 bg-slate-400 rounded-lg shadow-md hover:bg-slate-500 transition-colors duration-300">
-            <div className="flex justify-between items-center w-[350px]">
-                <span className="text-lg">{tasks}</span>
-                <div className="space-x-4">
-                    <button  className="bg-white focus:outline-none">
-                        <BiEditAlt className="text-xl hover:text-green-500 transition-colors duration-300"/>
-                    </button>
-                    <button  className="bg-white focus:outline-none">
-                        <BiTrash className="text-xl hover:text-red-500 transition-colors duration-300"/>
-                    </button>
-                </div>
-            </div>
+        <div className="space-x-4">
+            <button onClick={() => updateMode(id, tasks, names)} className="bg-white focus:outline-none">
+                <BiEditAlt className="text-xl hover:text-green-500 transition-colors duration-300" />
+            </button>
+
+            <button onClick={removeTask} className="bg-white focus:outline-none">
+                <BiTrash className="text-xl hover:text-red-500 transition-colors duration-300" />
+            </button>
         </div>
-    )
+    );
 }
 
-export default Lists
+export default Lists;

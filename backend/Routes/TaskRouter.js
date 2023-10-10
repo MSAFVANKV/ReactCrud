@@ -16,7 +16,7 @@ router
     .put(updateTasks)
 
 router
-    .route('/deleteTasks/:id')
+    .route('/delete/:id')
     .delete(deleteTasks )
 
 module.exports=router;
