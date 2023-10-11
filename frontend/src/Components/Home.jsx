@@ -17,12 +17,13 @@ import { setTasks,
      selectSearchQuery, 
      toggleUI, 
      selectUpdateId, 
-     setUpdateId } from '../Redux-Toolkit/TaskSlice';
+     setUpdateId, 
+     resetState} from '../Redux-Toolkit/TaskSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 
 
-function Home() {
+function Home({setIsLoggedIn, onLogout }) {
     const input = useSelector(selectInput)
     const tasks = useSelector(selectTasks)
     const searchQuery = useSelector(selectSearchQuery)
@@ -79,6 +80,16 @@ function Home() {
         })
     }
     
+    const handleLogout = async () => {
+    try {
+        await axios.get(`${baseURL}/logout`, { withCredentials: true });
+        setIsLoggedIn(false); 
+        // window.location.href = '/login'; // Redirect to the login page
+    } catch (error) {
+        console.error("Error during logout:", error);
+    }
+};
+
     
 
     const handleDelete = (id) => {
@@ -94,6 +105,8 @@ const columns = getColumns(handleEdit, handleDelete, toggleUI);
         <div className="">
             <div className="w-full flex items-center justify-center shadow-xl h-[100px] bg-purple-600">
                 <h2 className='font-bold text-[30px] text-center'>DAILY WORK-FLOW</h2>
+                <button onClick={handleLogout} className="ml-4 bg-red-500 text-white rounded px-4 py-2">Logout</button> {/* Adjust styles as per your requirement */}
+
             </div>
             
             <div className="container mx-auto p-4 flex flex-col justify-center items-center mt-[100px] w-full">
@@ -103,7 +116,7 @@ const columns = getColumns(handleEdit, handleDelete, toggleUI);
                 <InputTasks value={input} onChange={setInput} placeholder="Today's Task" />
                                 
                 <button type='submit' onClick={updateId ?updateTasks: addTask} className='border-black mb-4'>{updateId ?"UPDATE TASKS":"ADD TASKS"}</button>
-                
+                <div className="container border-black border-[1px] border-spacing-2 my-5 px-10 shadow-2xl">
                 <DataTable
                     title="Tasks List"
                     columns={columns}
@@ -115,6 +128,8 @@ const columns = getColumns(handleEdit, handleDelete, toggleUI);
                     subHeaderComponent={<Search onSearch={(query) => dispatch(setSearchQuery(query))} />} 
 
                 />
+                </div>
+             
             </div>
         </div>
     );

@@ -26,7 +26,8 @@ export const taskSlice = createSlice({
         updateId: null,
         status: 'idle',   // to track request status
         error: null,
-        updateUI: false
+        updateUI: false,
+        
     },
     reducers: {
         setInput: (state, action) => {
@@ -46,6 +47,8 @@ export const taskSlice = createSlice({
         },
         setName: (state, action) => {
             state.name = action.payload;
+        },resetState: state => {
+            return initialState;
         },
         
     },
@@ -67,7 +70,7 @@ export const taskSlice = createSlice({
 
 // ... rest of the slice code ...
 
-export const { setTasks, setInput, setSearchQuery, setUpdateId, toggleUI, setName } = taskSlice.actions
+export const { setTasks, setInput, setSearchQuery, setUpdateId, toggleUI, setName, resetState  } = taskSlice.actions
 
 export const selectTasks = (state) => state.tasks.list;
 export const selectInput = (state) => state.tasks.input;
