@@ -18,7 +18,7 @@ export const getColumns = (handleEdit, handleDelete, setUpdateUI) => [
     {
         name: 'Actions',
         ignoreRowClick: true,
-
+        width: window.innerWidth > 640 ? '200px' : '0px',
         width: '200px',
         cell: (row) => (
             <Lists 

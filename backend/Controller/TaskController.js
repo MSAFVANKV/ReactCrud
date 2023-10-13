@@ -44,6 +44,9 @@ module.exports.saveTasks = async (req, res) => {
 
     try {
         let user = await userModal.findById(userId);
+        if (!name || !task) {
+            return res.status(400).send({ msg: "Both name and task fields are required." });
+        }
         if (!user) {
             return res.status(404).send({ msg: "User not found." });
         }
@@ -78,6 +81,9 @@ module.exports.updateTasks = async (req, res) => {
     let user = await userModal.findById(userId);
     if (!user) {
         return res.status(404).send({ msg: "User not found." });
+    }
+    if (!name || !task) {
+        return res.status(400).send({ msg: "Both name and task fields are required." });
     }
     
     const taskIndex = user.tasks.findIndex(t => t._id.toString() === id);

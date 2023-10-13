@@ -1,11 +1,14 @@
 const express = require("express")
 const session = require('express-session');
-const TaskRouter = require('./Routes/TaskRouter')
 const mongoose = require('mongoose')
 require('dotenv').config({path:".env"});
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+
+// ROUTERS
+const TaskRouter = require('./Routes/TaskRouter')
+const adminRouter = require('./Routes/adminRouter')
 
 app.use(cors({
     origin: 'http://localhost:5173', // This is the correct version
@@ -36,6 +39,7 @@ app.use(bodyParser.json());
 
 
 app.use("/api",TaskRouter)
+app.use("/admin",adminRouter);
 // app.get('/',(req, res) => {
 //     res.send("Backend Running")
 // })

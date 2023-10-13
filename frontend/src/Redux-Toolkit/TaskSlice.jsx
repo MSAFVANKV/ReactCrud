@@ -3,11 +3,9 @@ import axios from 'axios';
 import { baseURL } from '../Base/Constent';
 
 
-export const getDataInfo = createAsyncThunk('api/get', () => {
-    return axios.get(`${baseURL}/get`)
-    .then((res) => {
-       return res.data
-    });
+export const getDataInfo = createAsyncThunk('api/get', async () => {
+    const res = await axios.get(`${baseURL}/get`);
+    return res.data;
 })
 
 getDataInfo.pending
@@ -27,7 +25,9 @@ export const taskSlice = createSlice({
         status: 'idle',   // to track request status
         error: null,
         updateUI: false,
-        
+        error: null,
+        nameError: null,
+        taskError: null,
     },
     reducers: {
         setInput: (state, action) => {
@@ -50,7 +50,24 @@ export const taskSlice = createSlice({
         },resetState: state => {
             return initialState;
         },
-        
+        // setError: (state, action) => {  // action to set error
+        //     state.error = action.payload;
+        // },
+        // clearError: (state) => {  // action to clear error
+        //     state.error = null;
+        // },
+        setNameError: (state, action) => {
+            state.nameError = action.payload;
+        },
+        setTaskError: (state, action) => {
+            state.taskError = action.payload;
+        },
+        clearNameError: (state) => {
+            state.nameError = null;
+        },
+        clearTaskError: (state) => {
+            state.taskError = null;
+        },
     },
     extraReducers: builder => {
         builder
@@ -70,13 +87,15 @@ export const taskSlice = createSlice({
 
 // ... rest of the slice code ...
 
-export const { setTasks, setInput, setSearchQuery, setUpdateId, toggleUI, setName, resetState  } = taskSlice.actions
+export const { setTasks, setInput, setSearchQuery, setUpdateId, toggleUI, setName, resetState, setError, clearError,
+               setNameError, setTaskError, clearNameError, clearTaskError  } = taskSlice.actions
 
 export const selectTasks = (state) => state.tasks.list;
 export const selectInput = (state) => state.tasks.input;
 export const selectSearchQuery = (state) => state.tasks.searchQuery;
 export const selectUpdateId = (state) => state.tasks.updateId;
 export const selectName = (state) => state.tasks.name;
+export const selectError = (state) => state.tasks.error
 
 
 
