@@ -1,5 +1,5 @@
 const {Router} = require('express')
-const {getAdminUser, adminLogin, createAdmin} = require('../Controller/Admin/adminController')
+const {getAdminUser, adminLogin, createAdmin, getAllUsers} = require('../Controller/Admin/adminController')
 const adminSessionCheck = require('../Middlware/adminSession')
 
 
@@ -8,6 +8,11 @@ const router = Router()
 router
     .route('/dashboard')
     .get(adminSessionCheck,getAdminUser)
+
+    router
+    .route('/all-users')
+    .get(adminSessionCheck, getAllUsers);
+
 
     router
     .route('/login')

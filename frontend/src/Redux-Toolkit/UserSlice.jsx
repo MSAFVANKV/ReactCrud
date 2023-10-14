@@ -36,6 +36,7 @@ export const userSlice = createSlice({
             console.log('Email being set:', action.payload);
             state.email = action.payload;
         },
+        setUsers: (state, action) => action.payload
         // Add more reducers if needed...
     },
     extraReducers: builder => {
@@ -67,9 +68,10 @@ export const userSlice = createSlice({
 });
 
 // Actions
-export const { setEmail } = userSlice.actions;
+export const { setEmail, setUsers } = userSlice.actions;
 
 // Selectors
+
 export const selectEmail = (state) => state?.user?.email;
 
 export const selectIsLoggedIn = (state) => state.user.isLoggedIn;

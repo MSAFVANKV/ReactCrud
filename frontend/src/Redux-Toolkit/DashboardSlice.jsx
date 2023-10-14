@@ -31,7 +31,10 @@ export const dashboardSlice = createSlice({
     reducers: {
         // setInput: (state, action) => {
         //     state.input = action.payload;
-        // }
+        // },
+        setUsers: (state, action) => {
+            state.list = action.payload;
+        },
     },
     extraReducers: builder => {
         builder
@@ -49,4 +52,6 @@ export const dashboardSlice = createSlice({
     }
 });
 
-// export const {setInput} = dashboardSlice.acction
+export const {setInput, setUsers } = dashboardSlice.actions
+
+export const setUserList =  (state) => state.dashboard
