@@ -19,7 +19,10 @@ function SignUp({ onSignupSuccess }) {
         onSubmit: (values) => {
             dispatch(signupUser(values))
             .then((res) => {
-                if (res.payload) onSignupSuccess();
+                if (res.payload){
+                    dispatch(onSignupSuccess())
+                    window.location.reload();
+                } 
             });
         },
     });

@@ -54,6 +54,10 @@ module.exports.loginUser = async (req, res) => {
             console.log('Username not found.');
             return res.status(400).send({ msg: "Username not found." });
         }
+        
+        if (user.isBlocked) {
+            return res.status(403).send({ msg: "Your account has been blocked." });
+        }
 
         const isMatch = await bcrypt.compare(password, user.password);
 

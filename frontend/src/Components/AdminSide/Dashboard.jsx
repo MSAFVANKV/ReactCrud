@@ -1,63 +1,78 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getadminInfo, setUsers, setUserList } from '../../Redux-Toolkit/DashboardSlice'
+import { getadminInfo, setUsers, setUserList, toggleBlockUser, addManager } from '../../Redux-Toolkit/DashboardSlice'
 import { baseURL, adminbaseURL } from '../../Base/Constent'
 import DataTable from 'react-data-table-component';
 import axios from 'axios'
 import Search from '../Search';
+import Navbar from '../Navbar';
+import AdminLayout from './AdminLayout';
 
 function Dashboard({ setIsAdminLoggedIn }) {
-  const [users, setUsers] = useState([])
-  // const users = useSelector(state => state.users);
+const dispatch = useDispatch()
 
+  // const [users, setUsers] = useState([])
+  // const users = useSelector(state => state.list);
+  const [managerDetails, setManagerDetails] = useState({
+    manegername: '',
+    password: ''
+  });
+
+  const error = useSelector(state => state.dashboard.error);
   // const users = useSelector(setUserList);
+  const users = useSelector(state => state.dashboard.list);
+
   console.log(users);
 
-  const dispatch = useDispatch()
-  useEffect(() => {
-    dispatch(getadminInfo)
-  }, [])
 
   const handleLogout = async () => {
     try {
-      await axios.get(`${baseURL}/logout`, { withCredentials: true });
-      setIsAdminLoggedIn(false);
-      // window.location.href = '/login'; // Redirect to the login page
+        await axios.get(`${adminbaseURL}/admin/logout`, { withCredentials: true });
+        dispatch(setIsAdminLoggedIn(false))
     } catch (error) {
-      console.error("Error during logout:", error);
+        console.error("Error during logout:", error);
     }
-  };
+};
 
-
-  // useEffect(() => {
-  //   async function fetchUsers() {
-  //     try {
-  //       const response = await axios.get(`${adminbaseURL}/all-users`, { withCredentials: true });
-  //       if (response.data) {
-  //         console.log("Received data from /all-users: ", response.data);
-  //         dispatch(setUsers(response.data));  // Assuming you have a setUsers action to set users in your Redux state
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching users:", error);
-  //     }
-  //   }
-  //   fetchUsers();
-  // }, [dispatch]);
 
   useEffect(() => {
     axios.get(`${adminbaseURL}/all-users`, { withCredentials: true })
-    .then((users) => {
-      setUsers(users.data)
-      console.log(users);
+    .then((response) => {
+      dispatch(setUsers(response.data)); // This will update your Redux store
+      console.log(response.data);
     })
-  },[])
-  const handleEdit = (row) => {
-    console.log("Edit functionality for:", row);
-}
+}, [dispatch]);
 
-const handleDelete = (row) => {
-    console.log("Delete functionality for:", row);
-}
+
+  // useEffect(() => {
+  //   axios.get(`${adminbaseURL}/all-users`, { withCredentials: true })
+  //   .then((users) => {
+  //     setUsers(users.data)
+  //     console.log(users);
+  //   })
+  // },[])
+
+
+const handleBlockToggle = (row) => {
+  dispatch(toggleBlockUser(row._id));
+};
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setManagerDetails(prevState => ({ ...prevState, [name]: value }));
+};
+
+const handleAddManager = () => {
+  dispatch(addManager(managerDetails)).then((action) => {
+    if (addManager.fulfilled.match(action)) {
+      // If the promise is fulfilled (successful), reset the input fields
+      setManagerDetails({
+        manegername: '',
+        password: ''
+      });
+    }
+  });
+};
 
 
   const columns = [
@@ -80,7 +95,7 @@ const handleDelete = (row) => {
         cell: (row) => (
             <>
                 {/* <button onClick={() => handleEdit(row)}>Edit</button> */}
-                <button className='bg-black text-white' onClick={() => handleDelete(row)}>Block</button>
+                <button className={`bg-${row.isBlocked ? 'red' : 'green'} text-black`} onClick={() => handleBlockToggle(row)}>{row.isBlocked ? 'Unblock' : 'Block'}</button>
             </>
         ),
     }
@@ -89,32 +104,47 @@ const handleDelete = (row) => {
 
   return (
     <div>
-      <div className="w-full relative flex items-center justify-between shadow-xl h-[100px] bg-purple-600">
-        <div className="flex-grow  items-center justify-center">
-          <h2 className='font-bold text-[30px] text-center text-white hidden sm:block'>DASHBOARD</h2>
-
-        </div>
-
-        <div className="flex-shrink-1 absolute right-0 pe-3">
-          <button onClick={handleLogout} className="ml-4 bg-black text-white rounded px-4 py-2">Logout</button>
-
-        </div>
-      </div>
-      <div className="container mx-auto lg:p-8 p-4 flex flex-col justify-center items-center mt-[100px] w-full">
-      <div className="overflow-x-auto container border-black border-[1px] border-spacing-2 my-5 px-10 shadow-2xl">
-        <DataTable
-          title="Users List"
-          columns={columns} // Define your columns
-          data={users}
-          pagination
-          highlightOnHover
-          customStyles={customStyles}
-          subHeader
-          subHeaderComponent={<Search onSearch={(query) => dispatch(setSearchQuery(query))} />}
+       <AdminLayout onLogout={handleLogout} >
+      <div className="flex flex-col w-[250px] items-center justify-center">
+        <span className="text-[20px] font-bold mb-3">CREATE MANAGER</span>
+        <input 
+        name='manegername'
+        type="text" 
+        value={managerDetails.manegername}
+        onChange={handleChange}
+        className='border-black border-[1px] rounded-lg w-[250px] h-[40px] p-3 mb-4'
+        placeholder='Manger username'
         />
-
+        <input
+        name='password'
+        type="password"
+        value={managerDetails.password}
+        onChange={handleChange}
+        className='border-black border-[1px] rounded-lg w-[250px] h-[40px] p-3'
+        placeholder='Password'
+        />
+        {error && <div className="error-message">{error}</div>}
+        <button onClick={() => handleAddManager()} className='my-5 bg-black text-white'>ADD</button>
       </div>
-      </div>
+      
+            {/* Only the specific code for the dashboard, the Navbar is already in the AdminLayout */}
+            <div className="font-bold bg-purple-900 w-full flex justify-center p-5">
+              <span className="text-white">USERS LIST</span>
+            </div>
+            <div className="overflow-x-auto container border-black border-[1px] border-spacing-2 my-5 px-10 shadow-2xl">
+              
+                <DataTable
+                    title="Users List"
+                    columns={columns}
+                    data={users}
+                    pagination
+                    highlightOnHover
+                    customStyles={customStyles}
+                    subHeader
+                    subHeaderComponent={<Search onSearch={(query) => dispatch(setSearchQuery(query))} />}
+                />
+            </div>
+        </AdminLayout>
     </div>
   )
 }

@@ -28,7 +28,17 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
-
+// Add another session middleware for admin
+app.use('/admin', session({
+    name: 'adminSession',
+    secret: 'your-admin-secret-key', 
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
   // Middleware to prevent caching
   app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');

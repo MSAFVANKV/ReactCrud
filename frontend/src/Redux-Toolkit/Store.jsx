@@ -7,9 +7,9 @@ import { dashboardSlice } from "./DashboardSlice";
 export const store = configureStore({
     reducer: {
         tasks: tasksReducer,
-        user:userSlice,
-        admin:adminSlice,
-        dashboard:dashboardSlice
+        user:userSlice.reducer,
+        admin:adminSlice.reducer,
+        dashboard:dashboardSlice.reducer
     }
 });
 

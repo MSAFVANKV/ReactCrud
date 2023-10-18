@@ -6,7 +6,7 @@ const User = require("../../Modals/userModal");
 module.exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find();
-        console.log(users,"dashg");
+        // console.log(users,"dashg");
         res.status(200).json(users);
     } catch (error) {
         res.status(500).send({ msg: "Error fetching users." });
@@ -116,5 +116,21 @@ module.exports.adminLogin = async (req, res) => {
     } catch (err) {
         console.error("Error during admin login:", err);
         return res.status(500).json({ msg: "Internal server error." });
+    }
+};
+
+module.exports.toggleBlockStatus = async (req, res) => {
+    try {
+        // Fetch the current user
+        const user = await User.findById(req.params.userId);
+        if (!user) return res.status(404).send({ msg: "User not found" });
+
+        // Toggle the isBlocked status
+        user.isBlocked = !user.isBlocked;
+        await user.save();
+        console.log('User blocked successfully');
+        res.status(200).send({ msg: user.isBlocked ? "User blocked successfully" : "User unblocked successfully", user });
+    } catch (error) {
+        res.status(500).send({ msg: "Internal server error", error });
     }
 };

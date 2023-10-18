@@ -1,13 +1,16 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { loginUser } from '../Redux-Toolkit/UserSlice';
+import { loginUser, selecError} from '../Redux-Toolkit/UserSlice';
 import { useFormik } from 'formik';
 import { SignupSchema } from './SignupValidate';
 
 
+
 function Login({ onLoginSuccess }) {
     const dispatch = useDispatch();
+
+    const error = useSelector(selecError)
 
     const formik = useFormik({
         initialValues: {
@@ -48,7 +51,7 @@ function Login({ onLoginSuccess }) {
                         className='border-black border-[.1rem] rounded-lg mb-4 w-[250px] p-2'
                     />
                     {formik.touched.password && formik.errors.password ? <div className='text-red-500 font-bold my-1'>{formik.errors.password}</div> : null}
-
+                    {error && <p className="text-red-500 mt-1">{error}</p>}
                     <button type="submit" className='border-black mb-4'>Login</button>
                     <Link to="/signup">Not a member? Sign Up<span className='text-white font-bold ms-2'>Sign Up</span> </Link>
                 </form>

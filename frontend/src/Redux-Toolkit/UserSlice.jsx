@@ -71,6 +71,7 @@ export const userSlice = createSlice({
 export const { setEmail, setUsers } = userSlice.actions;
 
 // Selectors
+export const selecError = (state) => state.user?.error
 
 export const selectEmail = (state) => state?.user?.email;
 
