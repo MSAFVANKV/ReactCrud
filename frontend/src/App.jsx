@@ -8,10 +8,11 @@ import AdminSignup from './Components/AdminSide/AdminSignup';
 import Dashboard from './Components/AdminSide/Dashboard';
 import { adminbaseURL, baseURL } from './Base/Constent';
 import axios from 'axios';
-import Mangers from './Components/Mangers';
-import Navbar from './Components/Navbar';
+import Mangers from './Components/AdminSide/Mangers';
+import Products from './Components/AdminSide/Products';
 
 function App() {
+    const [isManagerLoggedIn, setIsManagerLoggedIn] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
@@ -30,6 +31,11 @@ function App() {
         setIsAdminLoggedIn(true);
     };
 
+    //Mangers
+    const handleMangerLogin = () => {
+        setIsManagerLoggedIn(true)
+    }
+
     useEffect(() => {
         axios.get(`${baseURL}/check-auth`, { withCredentials: true })
             .then(response => {
@@ -37,13 +43,23 @@ function App() {
                     setIsLoggedIn(true);
                 }
             });
-        axios.get(`${adminbaseURL}/check-admin-auth`, { withCredentials: true })
+        // axios.get(`${adminbaseURL}/check-admin-auth`, { withCredentials: true })
+        //     .then(response => {
+        //         if (response.data.isAuthenticated) {
+        //             setIsAdminLoggedIn(true);
+        //         }
+        //     });
+            axios.get(`${adminbaseURL}/check-auth`, { withCredentials: true })
             .then(response => {
-                if (response.data.isAuthenticated) {
+                if (response.data.isAuthenticated === 'admin') {
                     setIsAdminLoggedIn(true);
+                }
+                else if(response.data.isAuthenticated === 'manager') {
+                    setIsManagerLoggedIn(true);
                 }
             });
     }, []);
+    
 
     return (
         <Router>
@@ -59,7 +75,17 @@ function App() {
                     <Route path="/admin/signup" element={<AdminSignup adminSignup={handleAdminSignup} />} />
                   
                     <Route path="/admin/dashboard" element={isAdminLoggedIn ? <Dashboard setIsAdminLoggedIn={setIsAdminLoggedIn} /> : <Navigate to="/admin" />} />
-                    <Route path="/admin/managers" element={isAdminLoggedIn ? <Mangers setIsAdminLoggedIn={setIsAdminLoggedIn} /> : <Navigate to="/admin" />}/>
+                    {/* <Route path="/admin/managers" element={isAdminLoggedIn ? <Mangers setIsAdminLoggedIn={setIsAdminLoggedIn} /> : <Navigate to="/admin" />}/> */}
+                    <Route path="/admin/managers" element={
+                        isAdminLoggedIn ? 
+                            (isManagerLoggedIn ? <Products /> : <Mangers onMangerLoginSuccess={handleMangerLogin} />)
+                            :
+                            <Navigate to="/admin" />
+                    }/>
+
+                    {/* manager route */}
+                    {/* <Route path="/admin/managers" element={isManagerLoggedIn ? <Products /> : <Mangers setIsManagerLoggedIn={setIsManagerLoggedIn} />} /> */}
+
 
                     {/* Default Route */}
                     <Route path="*" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />

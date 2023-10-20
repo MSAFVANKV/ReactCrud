@@ -2,11 +2,19 @@ import React from 'react'
 import Navbar from '../Navbar'
 
 function AdminLayout({ children, onLogout }) {
+    const handleLogout = async () => {
+        try {
+            await axios.get(`${adminbaseURL}/admin/logout`, { withCredentials: true });
+            dispatch(setIsAdminLoggedIn(false))
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
+    };
   return (
     <div>
     <div className="w-full relative flex items-center justify-between shadow-xl h-[100px] bg-purple-600">
         <div className="flex-grow items-center justify-center">
-            <Navbar />
+            <Navbar onLogout={handleLogout} />
         </div>
 
         <div className="flex-shrink-1 absolute right-0 pe-3">

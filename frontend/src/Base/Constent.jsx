@@ -1,2 +1,2 @@
-export const baseURL= "http://localhost:3000/api"
-export const adminbaseURL= "http://localhost:3000/admin"
+export const baseURL= "http://localhost:3001/api"
+export const adminbaseURL= "http://localhost:3001/admin"

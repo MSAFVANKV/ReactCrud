@@ -1,12 +1,12 @@
-import React from 'react'
-import AdminLayout from './AdminSide/AdminLayout'
+// import React from 'react'
+// import AdminLayout from './AdminSide/AdminLayout'
 
-function Mangers({onLogout}) {
-  return (
-    <AdminLayout onLogout={onLogout}>
-            <div>Mangers</div>
-        </AdminLayout>
-  )
-}
+// function Mangers({onLogout}) {
+//   return (
+//     <AdminLayout onLogout={onLogout}>
+//             <div>Mangers</div>
+//         </AdminLayout>
+//   )
+// }
 
-export default Mangers
+// export default Mangers

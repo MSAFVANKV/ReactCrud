@@ -1,6 +1,6 @@
 const {Router} = require('express')
 const {getAdminUser, adminLogin, createAdmin, getAllUsers ,toggleBlockStatus,} = require('../Controller/Admin/adminController')
-const { createManager } = require('../Controller/Admin/createMangers')
+const { createManager,loginManger } = require('../Controller/Admin/createMangers')
 const adminSessionCheck = require('../Middlware/adminSession')
 
 
@@ -17,7 +17,11 @@ router
     
         router
         .route('/managers')
-        .post(createManager)
+        .post(adminSessionCheck,createManager)
+
+        router
+        .route('/LoginManager')
+        .post(adminSessionCheck,loginManger)
 
     router
     .route('/toggle-block/:userId')
@@ -31,13 +35,28 @@ router
     .route('/signup')
     .post(createAdmin)
     
-    router.get('/check-admin-auth', (req, res) => {
+    // router.get('/check-admin-auth', (req, res) => {
+    //     if (req.session.adminId) {
+    //         res.status(200).send({ isAuthenticated: true });
+    //     } if(req.session.managerId) {
+    //         res.status(200).send({ isAuthenticated: true });
+    //     } 
+    //     else {
+    //         res.status(200).send({ isAuthenticated: false });
+    //     }
+    // });
+    router.get('/check-auth', (req, res) => {
         if (req.session.adminId) {
-            res.status(200).send({ isAuthenticated: true });
-        } else {
-            res.status(200).send({ isAuthenticated: false });
+            return res.status(200).send({ isAuthenticated: 'admin' });
+        } 
+        else if(req.session.managerId) {
+            return res.status(200).send({ isAuthenticated: 'manager' });
+        } 
+        else {
+            return res.status(200).send({ isAuthenticated: false });
         }
     });
+    
 
     router.get('/admin/logout', (req, res) => {
         if(!req.session) {

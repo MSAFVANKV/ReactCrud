@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getadminInfo, setUsers, setUserList, toggleBlockUser, addManager } from '../../Redux-Toolkit/DashboardSlice'
+import { getadminInfo, setUsers, setUserList, toggleBlockUser, addManager, selecManagerError } from '../../Redux-Toolkit/DashboardSlice'
 import { baseURL, adminbaseURL } from '../../Base/Constent'
 import DataTable from 'react-data-table-component';
 import axios from 'axios'
@@ -8,7 +8,7 @@ import Search from '../Search';
 import Navbar from '../Navbar';
 import AdminLayout from './AdminLayout';
 
-function Dashboard({ setIsAdminLoggedIn }) {
+function Dashboard({ setIsAdminLoggedIn, setIsManagerLoggedIn }) {
 const dispatch = useDispatch()
 
   // const [users, setUsers] = useState([])
@@ -18,7 +18,8 @@ const dispatch = useDispatch()
     password: ''
   });
 
-  const error = useSelector(state => state.dashboard.error);
+  const error = useSelector(selecManagerError);
+  // console.log(error);
   // const users = useSelector(setUserList);
   const users = useSelector(state => state.dashboard.list);
 
@@ -33,6 +34,18 @@ const dispatch = useDispatch()
         console.error("Error during logout:", error);
     }
 };
+// const handleLogout = async () => {
+//   try {
+//       await axios.get(`${adminbaseURL}/admin/logout`, { withCredentials: true });
+//       setIsAdminLoggedIn(false);
+//       setIsManagerLoggedIn(false);
+//       localStorage.removeItem('isAdminLoggedIn');
+//       localStorage.removeItem('isManagerLoggedIn');
+//   } catch (error) {
+//       console.error("Error during logout:", error);
+//   }
+// };
+
 
 
   useEffect(() => {
@@ -101,6 +114,7 @@ const handleAddManager = () => {
     }
 ];
 
+console.log("Error in component:", error);
 
   return (
     <div>
@@ -124,6 +138,7 @@ const handleAddManager = () => {
         placeholder='Password'
         />
         {error && <div className="error-message">{error}</div>}
+
         <button onClick={() => handleAddManager()} className='my-5 bg-black text-white'>ADD</button>
       </div>
       

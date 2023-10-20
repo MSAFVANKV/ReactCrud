@@ -32,17 +32,20 @@ export const addManager = createAsyncThunk('admin/addManager', async (managerDet
     try {
       const res = await axios.post(`${adminbaseURL}/managers`, managerDetails, { withCredentials: true });
       return res.data;
-    } catch (err) {
-      throw err.response.data;
+    } catch (error) {
+        console.log("Error:", error.response.data); // Add this line
+        throw error.response.data;
     }
   });
-  
+
+  export const loginManager = createAsyncThunk('admin/managers', async ({manegername, password}) => {
+    const response = await axios.post(`${adminbaseURL}/LoginManager`, { manegername, password }, { withCredentials: true });
+    console.log("Thunk response:", response.data);  // Debugging line
+    return response.data; 
+});
+
   // ... the rest of your Redux slice ...
   
-
-  
-
-
 getadminInfo.pending
 getadminInfo.fulfilled
 getadminInfo.rejected
@@ -53,13 +56,12 @@ export const dashboardSlice = createSlice({
     initialState: {
         list: [],
         name: "",
+        managerDetails: null,
         input: "",
         searchQuery: '',
         updateId: null,
         status: 'idle',   // to track request status
         error: null,
-        
- 
     },
     reducers: {
         // setInput: (state, action) => {
@@ -68,6 +70,9 @@ export const dashboardSlice = createSlice({
         setUsers: (state, action) => {
             state.list = action.payload;
         },
+        setError: (state, action) => {  // action to set error
+            state.error = action.payload;
+    },
     },
     extraReducers: builder => {
         builder
@@ -107,10 +112,20 @@ export const dashboardSlice = createSlice({
             .addCase(addManager.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
-            });
+            })
+            .addCase(loginManager.fulfilled, (state, action) => {
+                if (action.payload && action.payload.managerDetails) {
+                    state.isLoggedIn = true;
+                    state.managerDetails = action.payload.managerDetails;
+                } else {
+                    state.error = "Failed to login manager.";
+                }
+            })
+            
     }
 });
 
-export const {setInput, setUsers } = dashboardSlice.actions
+export const {setInput, setUsers, setError } = dashboardSlice.actions
 
+export const selecManagerError = (state) => state.dashboard.error
 export const setUserList = (state) => state.dashboard.list;
