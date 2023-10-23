@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux'
 import { SignupSchema } from '../SignupValidate';
@@ -7,29 +7,66 @@ import { signupAdmin } from '../../Redux-Toolkit/AdminSlice';
 
 function AdminSignup({adminSignup}) {
   const error = useSelector(state => state.admin?.error);
+  console.log(error)
   const dispatch = useDispatch();
+  const [userType, setUserType] = useState("")
+  const [secretKey, setSecretKey] = useState("")
+
+
   const formik = useFormik({
     initialValues:{
       email:"",
       password:"",
+      userType:""
     },
     validationSchema:SignupSchema,
-    onSubmit: (values)=>{
-      dispatch(signupAdmin(values))
-      .then((res) => {
-        if (res.payload) adminSignup();
-    });
-    }
-    
-  })
+    onSubmit: (values) => {
+      if (userType === "manager") {
+        console.log("Manager detected!")
+          if (secretKey !== "managerlog" || secretKey === "") {
+            console.log("Alerting!"); 
+              alert("Invalid manager or secret key missing!");
+              return;
+          }
+      }
+      dispatch(signupAdmin({ ...values, userType }))
+          .then((res) => {
+              if (res.payload) adminSignup();
+          });
+    }    
+});
 
   return (
     <div>
             <div>
-                <form onSubmit={formik.handleSubmit} className='container bg-orange-500 mx-auto p-4 flex flex-col justify-center items-center mt-[60px] rounded-xl shadow-xl w-[500px] h-[500px]'>
+                <form onSubmit={formik.handleSubmit} className='container bg-pink-400 mx-auto p-4 flex flex-col justify-center items-center mt-[60px] rounded-xl shadow-xl w-[500px] h-[500px]'>
                     <div className="mb-10">
-                        <strong>CREATE ADMIN ACCOUNT</strong>
+                      {userType === "manager" ? 
+                       <strong>CREATE MANAGER ACCOUNT</strong>:
+                       <strong>CREATE ADMIN ACCOUNT</strong>
+                       }
                     </div>
+                    <div className="flex gap-2 mb-3">
+                        Register as
+                    <input type="radio"
+                            name='UserType'
+                            value='admin'
+                            onChange={(e) => setUserType(e.target.value)} /> Admin
+
+                    <input type="radio"
+                            name='UserType'
+                            value='manager'
+                            onChange={(e) => setUserType(e.target.value)} /> Manager   
+                     
+                            
+                </div>
+                {userType === 'manager' ?  <input type="text"
+                            name='UserType'
+                            placeholder='SecretKey'
+                            className='border-black border-[.1rem] rounded-lg mb-4 w-[250px] p-2'
+                            onChange={(e) => setSecretKey(e.target.value)} /> :
+                            null }
+                  
                     <input
                         type="email"
                         name="email"

@@ -1,5 +1,6 @@
 
 const adminUser = require('../../Modals/AdminModal/adminModal')
+const managerUser = require('../../Modals/AdminModal/mangers')
 const bcrypt = require('bcryptjs')
 const User = require("../../Modals/userModal");
 
@@ -26,66 +27,87 @@ module.exports.getAdminUser = async (req, res) => {
 
 
 
-module.exports.createAdmin = async (req, res) => {
-    const { email, password } = req.body;
-    console.log(req.body, "Admin req.body");
-    if (!email || !password) {
-        console.log("Email and password are required in admin.");
+// module.exports.createAdmin = async (req, res) => {
+//     const { email, password, userType } = req.body;
+//     console.log(req.body, "Admin req.body");
+//     if (!email || !password || !userType) {
+//         console.log("Email and password are required in admin.");
 
-        return res.status(400).send({ msg: "Email and password are required." });
+//         return res.status(400).send({ msg: "Email and password and userType are required." });
+//     }
+
+//     try {
+//         let admin = await adminUser.findOne({ email });
+//         if (admin) {
+//             console.log("Email conflict for:", email);
+//             return res.status(400).send({ msg: "Email already exists." });
+//         }
+
+//         const hashPsw = await bcrypt.hash(password, 12);
+
+//         admin = new adminUser({
+//             email,
+//             password: hashPsw,
+//             userType
+//         });
+//         req.session.adminId = admin._id;
+//         const data = await admin.save();
+//         console.log("Created admin successfully");
+//         res.status(201).send({ email: data.email });
+
+//     } catch (err) {
+//         console.error("Error during admin signUp:", err);
+//         res.status(500).send({ msg: "Error saving user." });
+//     }
+// };
+
+module.exports.createAdminOrManager = async (req, res) => {
+    const { email, password, userType } = req.body;
+
+    if (!email || !password || !userType) {
+        return res.status(400).send({ msg: "Email, password, and userType are required." });
     }
 
     try {
-        let admin = await adminUser.findOne({ email });
-        if (admin) {
-            console.log("Email conflict for:", email);
+        let user;
+
+        // Check if user already exists based on type
+        if (userType === "admin") {
+            user = await adminUser.findOne({ email });
+        } else if (userType === "manager") {
+            user = await managerUser.findOne({ email });
+        } else {
+            return res.status(400).send({ msg: "Invalid user type." });
+        }
+
+        if (user) {
             return res.status(400).send({ msg: "Email already exists." });
         }
 
         const hashPsw = await bcrypt.hash(password, 12);
 
-        admin = new adminUser({
-            email,
-            password: hashPsw
-        });
-        req.session.adminId = admin._id;
-        const data = await admin.save();
-        console.log("Created admin successfully");
+        if (userType === "admin") {
+            user = new adminUser({
+                email,
+                password: hashPsw,
+                userType
+            });
+        } else if (userType === "manager") {
+            user = new managerUser({
+                email,
+                password: hashPsw,
+                userType
+            });
+        }
+
+        const data = await user.save();
         res.status(201).send({ email: data.email });
 
     } catch (err) {
-        console.error("Error during admin signUp:", err);
         res.status(500).send({ msg: "Error saving user." });
     }
 };
 
-// module.exports.adminLogin = async (req, res) => {
-//     const { email, password } = req.body;
-
-//     try {
-//         const admin = await adminUser.findOne({ email });
-
-//         if (!admin) {
-//             res.status(401).json({ msg: "Invalid admin credentials" });
-//             return;
-//         }
-       
-//         const isValid = await bcrypt.compare(password, admin.password);
-
-//         if (isValid) {
-//             req.session.adminId = admin._id; 
-//             req.session.isAuthenticated = true;
-//             console.log("Logged in successfully");
-//             res.status(200).send({ email: admin.email });
-//         } else {
-//             res.status(400).send({ msg: "Invalid email or password." });
-//             console.log("Invalid email or password.");
-//         }
-
-//     } catch (err) {
-//         res.status(500).json({ msg: "admin Server error" });
-//     }
-// };
 
 module.exports.adminLogin = async (req, res) => {
     const { email, password } = req.body;
@@ -110,7 +132,7 @@ module.exports.adminLogin = async (req, res) => {
         // If everything's good, set session variables and return a success response
         req.session.adminId = admin._id; 
         req.session.isAuthenticated = true;
-        console.log("Logged in successfully");
+        console.log("Logged in successfully",req.session.adminId);
         res.status(200).send({ email: admin.email });
 
     } catch (err) {
@@ -118,6 +140,40 @@ module.exports.adminLogin = async (req, res) => {
         return res.status(500).json({ msg: "Internal server error." });
     }
 };
+
+module.exports.loginManger = async (req, res) => {
+    const {email , password} = req.body
+    console.log("manager")
+    try {
+        const manager = await managerUser.findOne({ email })
+
+        if(!manager){
+            console.log('Invalid manager name.');
+            return res.status(400).json({ message: "Invalid manager email." });
+        }
+        const isMatch = await bcrypt.compare(password, manager.password)
+        if(!isMatch){
+            console.log('Invalid password.');
+            return res.status(400).json({ message: "Invalid manager password." });
+
+        }
+        req.session.managerId = manager._id;
+        req.session.isAuthenticated = true;
+        console.log("manager logged in",req.session.managerId);
+
+        res.status(200).send({ email: manager.email });
+        // res.status(200).json({ 
+        //     message: "Logged in successfully.",
+        //     managerDetails: manager  // Return manager details or token for frontend to identify
+        // });
+
+    } catch (error) {
+        console.error('Error manager logging in:', error);
+        res.status(500).json({ message: "Error manager logging in.", error: error.message });
+    }
+    
+}
+
 
 module.exports.toggleBlockStatus = async (req, res) => {
     try {

@@ -35,6 +35,12 @@ function App() {
     const handleMangerLogin = () => {
         setIsManagerLoggedIn(true)
     }
+    // const handleMangerLogin = () => {
+    //     setIsManagerLoggedIn(true);
+    //     // You can programmatically navigate the manager to the Products page here
+    //     window.location.href = "/manager/products"; // Using a simple window redirection
+    // }
+    
 
     useEffect(() => {
         axios.get(`${baseURL}/check-auth`, { withCredentials: true })
@@ -71,17 +77,22 @@ function App() {
                     <Route path="/home" element={isLoggedIn ? <Home setIsLoggedIn={setIsLoggedIn}/> : <Navigate to="/login" />} />
                     
                     {/* Admin Routes */}
-                    <Route path="/admin" element={isAdminLoggedIn ? <Navigate to="/admin/dashboard" /> : <AdminLogin onAdminLoginSuccess={handleAdminLoginSuccess} />} />
+                    <Route path="/admin" element={isAdminLoggedIn ? <Navigate to="/admin/dashboard" /> : <AdminLogin onAdminLoginSuccess={handleAdminLoginSuccess} onManagerLoginSuccess={handleMangerLogin} />} />
                     <Route path="/admin/signup" element={<AdminSignup adminSignup={handleAdminSignup} />} />
                   
                     <Route path="/admin/dashboard" element={isAdminLoggedIn ? <Dashboard setIsAdminLoggedIn={setIsAdminLoggedIn} /> : <Navigate to="/admin" />} />
+                    <Route path="/admin/managers" element={isAdminLoggedIn ? <Mangers setIsAdminLoggedIn={setIsAdminLoggedIn} /> : <Navigate to="/admin" />} />
+                    <Route path="/manager" element={isManagerLoggedIn ? <Navigate to="/manager/products" /> : <AdminLogin onAdminLoginSuccess={handleAdminLoginSuccess} onManagerLoginSuccess={handleMangerLogin} />} />
+                    <Route path="/manager/products" element={isManagerLoggedIn ? <Products setIsManagerLoggedIn={setIsManagerLoggedIn}/> : <Navigate to="/manager" />} />
+
                     {/* <Route path="/admin/managers" element={isAdminLoggedIn ? <Mangers setIsAdminLoggedIn={setIsAdminLoggedIn} /> : <Navigate to="/admin" />}/> */}
-                    <Route path="/admin/managers" element={
+                    {/* <Route path="/admin/managers" element={
                         isAdminLoggedIn ? 
-                            (isManagerLoggedIn ? <Products /> : <Mangers onMangerLoginSuccess={handleMangerLogin} />)
+                            (isManagerLoggedIn ? <Products setIsManagerLoggedIn={handleMangerLogin}/> : <Mangers onMangerLoginSuccess={handleMangerLogin} setIsAdminLoggedIn={setIsAdminLoggedIn}/>)
                             :
                             <Navigate to="/admin" />
-                    }/>
+                    }/> */}
+                   
 
                     {/* manager route */}
                     {/* <Route path="/admin/managers" element={isManagerLoggedIn ? <Products /> : <Mangers setIsManagerLoggedIn={setIsManagerLoggedIn} />} /> */}

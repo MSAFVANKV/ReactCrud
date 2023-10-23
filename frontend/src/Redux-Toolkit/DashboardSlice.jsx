@@ -38,11 +38,11 @@ export const addManager = createAsyncThunk('admin/addManager', async (managerDet
     }
   });
 
-  export const loginManager = createAsyncThunk('admin/managers', async ({manegername, password}) => {
-    const response = await axios.post(`${adminbaseURL}/LoginManager`, { manegername, password }, { withCredentials: true });
-    console.log("Thunk response:", response.data);  // Debugging line
-    return response.data; 
-});
+//   export const loginManager = createAsyncThunk('admin/managers', async ({email, password}) => {
+//     const response = await axios.post(`${adminbaseURL}/LoginManager`, { email, password }, { withCredentials: true });
+//     console.log("Thunk response:", response.data);  // Debugging line
+//     return response.data; 
+// });
 
   // ... the rest of your Redux slice ...
   
@@ -113,14 +113,14 @@ export const dashboardSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.error.message;
             })
-            .addCase(loginManager.fulfilled, (state, action) => {
-                if (action.payload && action.payload.managerDetails) {
-                    state.isLoggedIn = true;
-                    state.managerDetails = action.payload.managerDetails;
-                } else {
-                    state.error = "Failed to login manager.";
-                }
-            })
+            // .addCase(loginManager.fulfilled, (state, action) => {
+            //     if (action.payload && action.payload.managerDetails) {
+            //         state.isLoggedIn = true;
+            //         state.managerDetails = action.payload.managerDetails;
+            //     } else {
+            //         state.error = "Failed to login manager.";
+            //     }
+            // })
             
     }
 });

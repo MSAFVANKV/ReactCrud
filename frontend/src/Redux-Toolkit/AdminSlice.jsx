@@ -2,18 +2,26 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { adminbaseURL } from '../Base/Constent';
 
-export const loginAdmin = createAsyncThunk('admin/login', async ({ email, password }) => {
+export const loginAdmin = createAsyncThunk('admin/login', async ({ email, password, userType }) => {
     try {
-        const res = await axios.post(`${adminbaseURL}/login`, { email, password });
+        const res = await axios.post(`${adminbaseURL}/login`, { email, password, userType });
         return res.data;
     } catch (error) {
         throw Error(error.response?.data?.msg || "Admin Login failed");
     }
 });
-
-export const signupAdmin = createAsyncThunk('admin/signup', async ({ email, password }) => {
+export const loginManager = createAsyncThunk('admin/managerslog', async ({ email, password, userType }) => {
     try {
-        const res = await axios.post(`${adminbaseURL}/signup`, { email, password },{ withCredentials: true });
+        const res = await axios.post(`${adminbaseURL}/managerslog`, { email, password, userType });
+        return res.data;
+    } catch (error) {
+        throw Error(error.response?.data?.msg || "manager Login failed");
+    }
+});
+
+export const signupAdmin = createAsyncThunk('admin/signup', async ({ email, password, userType }) => {
+    try {
+        const res = await axios.post(`${adminbaseURL}/signup`, { email, password, userType },{ withCredentials: true });
         return res.data;
     } catch (error) {
         throw Error(error.response?.data?.msg || "Admin signup failed");
@@ -25,6 +33,7 @@ export const adminSlice = createSlice({
     initialState: {
         email: "",
         password: "",
+        userType:"",
         isAdminLoggedIn: false,
         status: 'idle',
         error: null,
@@ -53,6 +62,19 @@ export const adminSlice = createSlice({
                 state.error = null;
             })
             .addCase(loginAdmin.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(loginManager.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(loginManager.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.isAdminLoggedIn = true;
+                state.email = action.payload.email;
+                state.error = null;
+            })
+            .addCase(loginManager.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });

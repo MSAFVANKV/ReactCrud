@@ -1,14 +1,14 @@
 const {Router} = require('express')
-const {getAdminUser, adminLogin, createAdmin, getAllUsers ,toggleBlockStatus,} = require('../Controller/Admin/adminController')
-const { createManager,loginManger } = require('../Controller/Admin/createMangers')
-const adminSessionCheck = require('../Middlware/adminSession')
+const {getAdminUser, adminLogin, createAdmin, getAllUsers ,toggleBlockStatus, createAdminOrManager, loginManger} = require('../Controller/Admin/adminController')
+const { createManager } = require('../Controller/Admin/createMangers')
+const {adminSessionCheck,managerSessionCheck} = require('../Middlware/adminSession')
 
 
 const router = Router()
 
-router
-    .route('/dashboard')
-    .get(adminSessionCheck,getAdminUser)
+// router
+//     .route('/dashboard')
+//     .get(adminSessionCheck,getAdminUser)
 
     router
     .route('/all-users')
@@ -17,11 +17,11 @@ router
     
         router
         .route('/managers')
-        .post(adminSessionCheck,createManager)
+        .post(managerSessionCheck,createManager)
 
         router
         .route('/LoginManager')
-        .post(adminSessionCheck,loginManger)
+        .post(loginManger)
 
     router
     .route('/toggle-block/:userId')
@@ -33,8 +33,10 @@ router
     .post(adminLogin)
 router
     .route('/signup')
-    .post(createAdmin)
-    
+    .post(createAdminOrManager)
+    router
+    .route('/managerslog')
+    .post(loginManger)
     // router.get('/check-admin-auth', (req, res) => {
     //     if (req.session.adminId) {
     //         res.status(200).send({ isAuthenticated: true });
@@ -56,6 +58,7 @@ router
             return res.status(200).send({ isAuthenticated: false });
         }
     });
+    
     
 
     router.get('/admin/logout', (req, res) => {

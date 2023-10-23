@@ -12,7 +12,12 @@ function Navbar() {
             id:2,
             name:"MANAGERS",
             path:"/admin/managers"
-        }
+        },
+        // {
+        //     id:3,
+        //     name:"PRODUCTS",
+        //     path:"/admin/products"
+        // }
     ];
 
     return (

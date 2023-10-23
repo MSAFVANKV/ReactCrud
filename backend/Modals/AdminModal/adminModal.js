@@ -12,6 +12,10 @@ const adminSchema = new mongoose.Schema({
       password: {
         type: String,
       },
+      userType: {
+        type: String,
+        default: "admin"
+    }
     
 })
 
