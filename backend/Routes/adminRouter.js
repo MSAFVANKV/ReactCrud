@@ -1,14 +1,11 @@
 const {Router} = require('express')
+const multer = require('multer')
 const {getAdminUser, adminLogin, createAdmin, getAllUsers ,toggleBlockStatus, createAdminOrManager, loginManger} = require('../Controller/Admin/adminController')
-const { createManager } = require('../Controller/Admin/createMangers')
+const { createManager, uploadFile, getAllProducts, deleteFile } = require('../Controller/Admin/createMangers')
 const {adminSessionCheck,managerSessionCheck} = require('../Middlware/adminSession')
-
+const upload = require('../Utilities/imageUpload')
 
 const router = Router()
-
-// router
-//     .route('/dashboard')
-//     .get(adminSessionCheck,getAdminUser)
 
     router
     .route('/all-users')
@@ -19,24 +16,41 @@ const router = Router()
         .route('/managers')
         .post(managerSessionCheck,createManager)
 
-        router
-        .route('/LoginManager')
-        .post(loginManger)
+        // router
+        // .route('/LoginManager')
+        // .post(loginManger)
 
     router
     .route('/toggle-block/:userId')
     .put(adminSessionCheck, toggleBlockStatus);
 
 
-    router
+router
     .route('/login')
     .post(adminLogin)
 router
     .route('/signup')
     .post(createAdminOrManager)
-    router
+router
     .route('/managerslog')
     .post(loginManger)
+
+    // manager products page routes
+    router
+    .route('/getProducts')
+    .get(managerSessionCheck,getAllProducts);
+
+    router
+    .route('/product/delete/:_id')
+    .delete(deleteFile);
+
+router
+   .route("/upload")
+   .post(managerSessionCheck, upload.fields([
+      { name: "file", maxCount: 1 },
+    ]),uploadFile);
+
+
     // router.get('/check-admin-auth', (req, res) => {
     //     if (req.session.adminId) {
     //         res.status(200).send({ isAuthenticated: true });

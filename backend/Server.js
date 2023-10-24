@@ -5,7 +5,7 @@ require('dotenv').config({path:".env"});
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
-
+const path = require('path')
 // ROUTERS
 const TaskRouter = require('./Routes/TaskRouter')
 const adminRouter = require('./Routes/adminRouter')
@@ -46,6 +46,8 @@ app.use('/admin', session({
   });
 // app.use(express.json())
 app.use(bodyParser.json());
+// app.use('/Public/images', express.static('Public/images'));
+app.use('/Public', express.static(path.join(__dirname, 'Public')));
 
 
 app.use("/api",TaskRouter)

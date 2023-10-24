@@ -1,40 +1,71 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { adminbaseURL } from "../Base/Constent";
-import axios from "axios";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { adminbaseURL } from '../Base/Constent';
 
-// export const loginProducts = createAsyncThunk('admin/managers', async ({manegername, password}) => {
-//     const response = await axios.post(`${adminbaseURL}/LoginManager`,{ manegername, password }, { withCredentials: true });
-//     return response.data.data;  // access the data property of the response
-// });
+export const getProducts = createAsyncThunk('manager/products', async () => {
+    const response = await axios.get(`${adminbaseURL}/getProducts`, { withCredentials: true });
+    return response.data.data;  // access the data property of the response
+});
 
-export const productSlice  = createSlice({
+export const uploadProduct = createAsyncThunk('products/upload', async (formData) => {
+    try {
+        const res = await axios.post(`${adminbaseURL}/upload`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return res.data;
+    } catch (error) {
+        throw Error(error.response?.data?.msg || "Upload failed");
+    }
+});
+
+const productsSlice = createSlice({
     name: 'products',
-    initialState:{
-        email: "",
-        isLoggedIn: false,
+    initialState: {
+        products: [],
+        // product: null,
         status: 'idle',
         error: null,
-        updateUI: false 
+        updateProductUI: false,
     },
-    reducers: {},
+    reducers: {
+        setProducts: (state, action) => {
+            state.products = action.payload;
+        },
+        toggleProUI: (state) => {
+            state.updateProductUI = !state.updateProductUI;
+        },
+    },
     extraReducers: builder => {
         builder
-            .addCase(fetchProducts.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                state.items = action.payload;
+            .addCase(uploadProduct.pending, (state) => {
+                state.status = 'loading';
             })
-            .addCase(fetchProducts.rejected, (state, action) => {
+            .addCase(uploadProduct.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.products = action.payload.details;
+                state.error = null;
+            })
+            .addCase(uploadProduct.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             })
-            .addCase(addProduct.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                state.items.push(action.payload);
+            .addCase(getProducts.pending, (state) => {
+                state.status = 'loading';
             })
-            .addCase(addProduct.rejected, (state, action) => {
+            .addCase(getProducts.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.products = action.payload
+                state.error = null;
+            })
+            .addCase(getProducts.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
-            })
-            
+            });
     }
-})
+});
+
+export const {setProducts ,toggleProUI} = productsSlice.actions
+
+export default productsSlice.reducer;

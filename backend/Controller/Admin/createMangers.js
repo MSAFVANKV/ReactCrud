@@ -1,5 +1,7 @@
 const mangersSchema = require('../../Modals/AdminModal/mangers');
 const bcrypt = require('bcryptjs')
+const sharp=require("sharp")
+const productsCollection = require('../../Modals/AdminModal/products')
 
 // module.exports.loginManger = async (req, res) => {
 //     const {email , password} = req.body
@@ -60,3 +62,71 @@ module.exports.createManager = async (req, res) => {
         res.status(500).send({ msg: "Error saving manger." });
     }
 }
+
+
+// Fetch all products
+module.exports.getAllProducts = async (req, res) => {
+    try {
+        const products = await productsCollection.find({});
+        res.status(200).send(products);
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        res.status(500).send("Internal Server Error fetching products");
+    }
+}
+
+// uload images
+module.exports.uploadFile = async (req, res) => {
+    try {
+        let productInput = req.body.file;
+        let productImges = `${productInput}_file_${Date.now()}.png`;
+        await sharp(req.files.file[0].buffer)
+        .toFormat("png")
+        .png({ quality: 80 })
+        .toFile(`Public/images/${productImges}`);
+
+        const productCheck = await productsCollection.findOne({ file: productImges });
+        if (productCheck) {
+            const product = await productsCollection.find({});
+            res.status(201).send({ details: product });
+          
+        }else {
+            const newProduct = new productsCollection({
+                file:productImges,
+                productname:req.body.productname
+            });
+            const products = await productsCollection.find({});
+            await newProduct.save();
+            // res.status(200).send({ newProduct });
+            res.status(200).send({ details: products, newProduct });
+
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Internal Server Error adding products");
+    }
+}
+
+module.exports.deleteFile = async (req, res) => {
+    const { _id } = req.params;
+
+    if(!_id) {
+        return res.status(400).send({ msg: "Product ID not provided." });
+    }
+    
+    try {
+        const product = await productsCollection.findByIdAndDelete(_id);
+
+        if (!product) {
+            console.log('Product not found.');
+            return res.status(404).send({ msg: "Product not found." });
+        }
+        console.log('Deleted successfully');
+        res.send({ msg: 'Deleted successfully', product });
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        res.status(500).send({ error: error.message, msg: "Internal Server Error deleting product" });
+    }
+}
+
